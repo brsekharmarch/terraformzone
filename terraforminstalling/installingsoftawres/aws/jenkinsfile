@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+    tools {
+        terraform 'terraform'
+    }
+    stages {
+        stage ('git checkout') {
+            steps{
+                git branch: 'master' credentialsId: 'Github', url: 'https://github.com/brsekharmarch/terraformzone.git'
+            }
+        }
+        stage ('terraform format') {
+            steps{
+                sh 'terraform fmt'
+            }    
+        }
+        stage ('terraform init') {
+           steps{
+              sh 'terraform init'
+           }
+        }
+        stage ('terraform validate') {
+           steps{
+              sh 'terraform validate'
+           }
+        }
+        stage ('terraform apply') {
+            steps{
+                sh 'terraform apply --auto-approve'
+            }
+        }                
+    }
+}
