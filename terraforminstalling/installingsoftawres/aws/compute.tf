@@ -82,15 +82,28 @@ resource "aws_instance" "db" {
 
 }
 
+resource "aws_key_pair" "deployer" {
+  key_name   = "deployer-key"
+  public_key = file("~/.ssh/id_rsa.pub")
+}
+
 resource "null_resource" "file" {
   triggers = {
     rollout_version = "var.ntier_vpc_info.rollout_version"
   }
 
   connection {
-    host = aws_instance.db.public_ip
-    user = "ubuntu"
-    type = "ssh"
+    host     = aws_instance.db.public_ip
+    user     = "ubuntu"
+    type     = "ssh"
+    host_key = aws_key_pair.deployer.public_key
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update",
+      "sudo apt install apache2 -y",
+    ]
+
   }
 }
 
